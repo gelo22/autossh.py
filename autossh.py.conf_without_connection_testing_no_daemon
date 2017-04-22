@@ -1,0 +1,13 @@
+{
+"ssh_user": "root",
+"ssh_host": "deb-tst",
+"ssh_options": "-tt -o AddressFamily=inet -o ExitOnForwardFailure=yes -o ConnectTimeout=10 -o PasswordAuthentication=no",
+"ssh_forwards": "-R 2001:127.0.0.1:22",
+"ssh_key": "/home/my_user/.ssh/my_ssh_private_key",
+"pid_file": "./autossh.py.pid",
+"log_file": "./autossh.py.log",
+"log_level": "output",
+"connection_tester_interval": 10,
+"disable_connection_tester": "yes",
+"daemon": ""
+}
