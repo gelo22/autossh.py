@@ -57,7 +57,7 @@ save file and exit
 
 #### on the my_server_host todo:
 
-</pre>
+<pre>
 git clone https://github.com/gelo22/autossh.py.git
 old_umask=$(umask)
 umask 0077
