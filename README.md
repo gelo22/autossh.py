@@ -20,10 +20,14 @@ my_client_host - client host, which will connect to my_server_host
 my_ssh_key - public ssh key which my_client_host will use for connection to my_server_host
 my_user - user, which my_client_host will use for connection to my_server_host
 
-# on the my_client_host todo:
-# login as desired user, generate ssh_keys (by default id_rsa and id_rsa.pub)
+#### on the my_client_host todo:
+
+login as desired user, generate ssh_keys (by default id_rsa and id_rsa.pub)
+<pre>
 ssh-keygen
-# set variables
+</pre>
+set variables
+<pre>
 cat > my_variables <<EOF
 my_server_host=server.example.com
 my_client_host=client.example.com
@@ -40,14 +44,20 @@ sed -i s/my_user/${my_user}/g autossh.py/autossh.py.conf
 sed -i s/my_destination_host/${my_server_host}/g autossh.py/autossh.py.conf
 sed -i s/my_ssh_private_key/${my_ssh_privat_key}/g autossh.py/autossh.py.conf
 scp .ssh/id_rsa.pub ${my_server_host}:./
-
-# add job to crontab
+</pre>
+add job to crontab
+<pre>
 crontab -e
+</pre>
 # add line
+<pre>
 @reboot cd ./autossh.py/ && ./autossh.py
-# save file and exit
+</pre>
+save file and exit
 
-# on the my_server_host todo:
+#### on the my_server_host todo:
+
+</pre>
 git clone https://github.com/gelo22/autossh.py.git
 old_umask=$(umask)
 umask 0077
@@ -55,9 +65,11 @@ mkdir -p ./ssh
 my_ssh_key_value=$(cat ./id_rsa.pub)
 echo "command=\"cd autossh.py && ./connection_tester.py --hostname='${my_client_host}'\" ${my_ssh_key_value}" >> .ssh/authorized_keys 
 umask $old_umask
-
-# reboot my_client_host to check if cron started
+</pre>
+reboot my_client_host to check if cron started
+<pre>
 ps aux | grep autossh
+</pre>
 by default - port 22 to 2001 will be forwarded
 
 ### Ruquirements
@@ -71,7 +83,9 @@ Openssh
 ### Options
 
 Config file and script have the same options, run script in help mode to get list of options:
+<pre>
 ./autossh.py -h
+</pre>
 
 Options from command line will owerride values from config
 
