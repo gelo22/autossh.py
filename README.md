@@ -29,13 +29,15 @@ ssh-keygen
 set variables in file "my_variables"
 ~~~~
 editor my_variables
-
+~~~~
+~~~~
 my_server_host=server.example.com
 my_client_host=client.example.com
 my_user=user
 my_ssh_key="./ssh/id_rsa.pub"
 my_ssh_privat_key="./ssh/id_rsa"
-
+~~~~
+~~~~
 source my_variables
 scp my_variables ${my_user}@${my_server_host}:./
 
