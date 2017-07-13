@@ -49,7 +49,7 @@ add job to crontab
 <pre>
 crontab -e
 </pre>
-# add line
+add line
 <pre>
 @reboot cd ./autossh.py/ && ./autossh.py
 </pre>
