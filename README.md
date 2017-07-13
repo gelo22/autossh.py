@@ -37,6 +37,7 @@ my_user=user
 my_ssh_key="./ssh/id_rsa.pub"
 my_ssh_privat_key="./ssh/id_rsa"
 ~~~~
+get code and replace default values in config by values from my_variables
 ~~~~
 source my_variables
 scp my_variables ${my_user}@${my_server_host}:./
