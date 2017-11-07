@@ -1,0 +1,17 @@
+{
+"ssh_user": "{{ssh_user}}",
+"ssh_host": "{{host}}",
+"ssh_port": 22,
+"ssh_port_timeout": 60,
+"ssh_options": "-tt -o AddressFamily=inet -o ExitOnForwardFailure=yes -o PasswordAuthentication=no -o StrictHostKeyChecking=no",
+"ssh_forwards": "-L 1445:127.0.0.1:445 -L 9091:127.0.0.1:9091",
+"ssh_key": "{{user_home_dir}}.ssh/autossh_py_rsa",
+"pid_file": "/tmp/autossh_py/{{prefix}}autossh.py.pid",
+"log_file": "/tmp/autossh_py/{{prefix}}autossh.py.log",
+"stdout_log_file": "/tmp/autossh_py/{{prefix}}autossh.py_stdout.log",
+"stderr_log_file": "/tmp/autossh_py/{{prefix}}autossh.py_stderr.log",
+"log_level": "stdout",
+"connection_tester_interval": 10,
+"disable_connection_tester": "",
+"daemon": ""
+}

@@ -4,14 +4,15 @@ After=network.target auditd.service
 
 [Service]
 Type=simple
-ExecStart=/opt/autossh_py/autossh.py
-User=alex
-#ExecReload=/bin/kill -HUP $MAINPID
-#Restart=on-failure
+ExecStart={{dst_dir}}autossh.py --config={{config_name}}
+User={{user}}
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
 StandardOutput=journal
 StandardError=inherit
 Nice=19
 IOSchedulingClass=3
+PrivateTmp=True
 
 [Install]
 WantedBy=multi-user.target

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
@@ -18,19 +18,19 @@ import socket
 # parse args
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', default=sys.argv[0] + '.conf', help='config file location')
-parser.add_argument('--ssh-user', help='ssh user for ssh connection')
-parser.add_argument('--ssh-host', help='remote host for ssh connection')
-parser.add_argument('--ssh-port', type=int, help='remote port for ssh connection')
-parser.add_argument('--ssh-port-timeout', type=int, help='timeout in seconds for remote ssh port test')
-parser.add_argument('--ssh-options', help='additional options for ssh, for example "-tt -o AddressFamily=inet -o ExitOnForwardFailure=yes"')
-parser.add_argument('--ssh-forwards', help='forward options for ssh, for example "-R 2001:127.0.0.1:22"')
-parser.add_argument('--ssh-key', help='private key for ssh connection, for example "/home/mu_user/.ssh/id_rsa_pf"')
-parser.add_argument('--pid-file', help='pid file location')
-parser.add_argument('--log-file', help='log file location')
-parser.add_argument('--stdout-log-file', help='file for ssh process stdout')
-parser.add_argument('--stderr-log-file', help='file for ssh process stderr')
-parser.add_argument('--log-level', help='set output level for log messages (debug, info, none, stdout)')
-parser.add_argument('--connection-tester-interval', type=int, help='interval for watchdog message check, will break connection if control message not received')
+parser.add_argument('--ssh_user', help='ssh user for ssh connection')
+parser.add_argument('--ssh_host', help='remote host for ssh connection')
+parser.add_argument('--ssh_port', type=int, help='remote port for ssh connection')
+parser.add_argument('--ssh_port_timeout', type=int, help='timeout in seconds for remote ssh port test')
+parser.add_argument('--ssh_options', help='additional options for ssh, for example "-tt -o AddressFamily=inet -o ExitOnForwardFailure=yes"')
+parser.add_argument('--ssh_forwards', help='forward options for ssh, for example "-R 2001:127.0.0.1:22"')
+parser.add_argument('--ssh_key', help='private key for ssh connection, for example "/home/mu_user/.ssh/id_rsa_pf"')
+parser.add_argument('--pid_file', help='pid file location')
+parser.add_argument('--log_file', help='log file location')
+parser.add_argument('--stdout_log_file', help='file for ssh process stdout')
+parser.add_argument('--stderr_log_file', help='file for ssh process stderr')
+parser.add_argument('--log_level', help='set output level for log messages (debug, info, none, stdout)')
+parser.add_argument('--connection_tester_interval', type=int, help='interval for watchdog message check, will break connection if control message not received')
 parser.add_argument('--disable-connection-tester', type=bool, help='disable connection testing via remote script if --disable-connection-tester="if_not_empty_string"')
 parser.add_argument('--daemon', type=bool, help='enable daemon mode if --daemon="if_not_empty_string"')
 args = parser.parse_args()
@@ -62,7 +62,7 @@ def pre_run_checks():
                 with open(file_name, 'a') as write_check:
                     pass
             except IOError:
-                conf['log-level'] = 'stdout'
+                conf['log_level'] = 'stdout'
                 print('File {0} is not writable, will log to stdout'.format(file_name))
             
 def fork():
@@ -73,12 +73,15 @@ def fork():
 
 def write_pid():
     '''Write main process PID to file'''
-    with open(conf['pid-file'], 'w') as pid:
+    with open(conf['pid_file'], 'w') as pid:
         pid.write(str(os.getpid()))
 
 def open_log():
     '''Open main log file'''
-    log_file = open(conf['log-file'], 'w')
+    if conf['log_level'] == 'stdout':
+        log_file = sys.stdout
+    else:
+        log_file = open(conf['log_file'], 'w')
     return log_file
 
 def do_log(message, level):
@@ -88,12 +91,14 @@ def do_log(message, level):
     '''
     levels = { 'none': 0, 'info': 1, 'warn': 2, 'debug': 3 }
     current_time = datetime.datetime.now()
-    if conf['log-level'] == 'stdout':
+    if conf['log_level'] == 'stdout':
         message = '{0} {1}\n'.format(current_time, str(message).strip())
-        print(message)
+        log_file.write(message)
+        log_file.flush()
+   #    print(message, flush=True)
         return
     level_weight = levels[level]
-    conf_level_weight = levels[conf['log-level']]
+    conf_level_weight = levels[conf['log_level']]
     if conf_level_weight >= level_weight:
         message = '{0} {1}: {2}\n'.format(datetime.datetime.now(), level.upper(), str(message).strip())
         log_file.write(message)
@@ -103,23 +108,23 @@ def watchdog(proc):
     '''Watchdog which check for new messages from stdout thread, if new mesage is not exists, then make signal for all threads stop'''
     # write to stdin controll messages
     stdin_line = '1\n'
-    stdout_counter = conf['connection-tester-interval']
-    truncate_counter = conf['connection-tester-interval']
-    if not conf['disable-connection-tester']:
+    stdout_counter = conf['connection_tester_interval']
+    truncate_counter = conf['connection_tester_interval']
+    if not conf['disable_connection_tester']:
         while stdout_counter > 0:
             proc.stdin.write(stdin_line.encode('UTF-8'))
             proc.stdin.flush()
-            size_old = os.stat(conf['stdout-log-file']).st_size
+            size_old = os.stat(conf['stdout_log_file']).st_size
             time.sleep(1)
-            size_new = os.stat(conf['stdout-log-file']).st_size
+            size_new = os.stat(conf['stdout_log_file']).st_size
             if size_new <= size_old:
                 stdout_counter -= 1
             else:
-                stdout_counter = conf['connection-tester-interval']
+                stdout_counter = conf['connection_tester_interval']
             truncate_counter -= 1
             if truncate_counter <= 0:
-                truncate_counter = conf['connection-tester-interval']
-                with open(conf['stdout-log-file'], 'w') as truncate_log:
+                truncate_counter = conf['connection_tester_interval']
+                with open(conf['stdout_log_file'], 'w') as truncate_log:
                     pass
             if data['reload_daemon']:
                 break
@@ -136,16 +141,16 @@ def ssh():
     Write controll messages for destination host
     '''
     template = 'ssh -p {0} -o ConnectTimeout={1} {2} -i {3} {4} {5}@{6}'
-    command = template.format(conf['ssh-port'],
-                              conf['ssh-port-timeout'],
-                              conf['ssh-options'],
-                              conf['ssh-key'], 
-                              conf['ssh-forwards'],
-                              conf['ssh-user'],
-                              conf['ssh-host']).split()
+    command = template.format(conf['ssh_port'],
+                              conf['ssh_port_timeout'],
+                              conf['ssh_options'],
+                              conf['ssh_key'], 
+                              conf['ssh_forwards'],
+                              conf['ssh_user'],
+                              conf['ssh_host']).split()
 
-    proc_stdout=open(conf['stdout-log-file'], 'w')
-    proc_stderr=open(conf['stderr-log-file'], 'w')
+    proc_stdout=open(conf['stdout_log_file'], 'w')
+    proc_stderr=open(conf['stderr_log_file'], 'w')
     proc = Popen(command, stdin=PIPE, stdout=proc_stdout, stderr=proc_stderr)
     return proc
 
@@ -157,7 +162,7 @@ def is_ssh_port_open(host, port):
     '''Check if remote ssh port is open'''
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        s.settimeout(float(conf['ssh-port-timeout']))
+        s.settimeout(float(conf['ssh_port_timeout']))
         s.connect((host, port))
         resp = s.recv(100)
         s.close()
@@ -166,6 +171,25 @@ def is_ssh_port_open(host, port):
         return False
     except socket.timeout:
         return False
+
+def read_ssh_log(stdout_log_file_name, stderr_log_file_name):
+   #do_log(read_ssh_log(conf['stdout_log_file'], conf['stderr_log_file']), 'info')
+   #read_ssh_log(conf['stdout_log_file'], conf['stderr_log_file'])
+    message = ''
+    if os.path.isfile(stdout_log_file_name):
+        with open(stdout_log_file_name) as log_file:
+            for line in log_file:
+                if line not in ['1\n', '2\n']:
+                    message += 'Ssh stdout log: {0}'.format(line)
+        with open(stdout_log_file_name, 'w') as log_file:
+            pass
+    if os.path.isfile(stderr_log_file_name):
+        with open(stderr_log_file_name) as log_file:
+            for line in log_file:
+                message += 'Ssh stderr log: {0}'.format(line)
+        with open(stderr_log_file_name, 'w') as log_file:
+            pass
+    return message
 
 if __name__ == '__main__':
     # first run things
@@ -180,7 +204,7 @@ if __name__ == '__main__':
     except:
         trace = traceback.format_exception(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
         do_log(str(trace), 'info')
-        time.sleep(conf['connection-tester-interval'])
+        time.sleep(conf['connection_tester_interval'])
 
     # main loop, which always run fresh start after all threads exit
     # add dictionary for data exchange
@@ -198,10 +222,11 @@ if __name__ == '__main__':
                 for key in conf:
                     do_log('{0}: {1}'.format(key, conf[key]), 'debug')
             pre_run_checks()
-            if not is_ssh_port_open(conf['ssh-host'], conf['ssh-port']):
+            if not is_ssh_port_open(conf['ssh_host'], conf['ssh_port']):
                 do_log('remote ssh port is not accessible, sleeping', 'info')
-                time.sleep(conf['connection-tester-interval'])
+                time.sleep(conf['connection_tester_interval'])
                 continue
+            do_log(read_ssh_log(conf['stdout_log_file'], conf['stderr_log_file']), 'info')
             do_log('New connection started', 'info')
             proc = ssh()
             watchdog(proc)
@@ -213,5 +238,5 @@ if __name__ == '__main__':
         except:
             trace = traceback.format_exception(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
             do_log(str(trace), 'info')
-            time.sleep(conf['connection-tester-interval'])
+            time.sleep(conf['connection_tester_interval'])
          
