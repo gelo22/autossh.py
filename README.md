@@ -48,7 +48,7 @@ Run next commands on destination server:
 ~~~~
 4. Run service
 ~~~~
-systemctl start router-kiev_autossh_py.service
+systemctl start my_prefix_autossh_py.service
 ~~~~
 
 ### Run without systemd
