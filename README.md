@@ -2,53 +2,60 @@
 
 Able to run ssh ports forwarding:
 
-1. connection control for asap broken connection detection and restart
+1. connection control for fix broken connection as soon as possible
 2. daemon mode
-3. write logs
+3. systemd
 4. same options in both config and command line arguments
-5. have no shell on remote host
+5. client have no shell on remote host
 
-### Example usage
+### Ruquirements
 
-1. Clone git
-2. Create new ssh key for this script, authorize this ssh key on the destination host
-3. Make your own config from example "autossh.py.conf"
-4. Run script
+Python 2 or Python 3
 
-my_server_host - client(s) will connect to this host
-my_client_host - client host, which will connect to my_server_host
-my_ssh_key - public ssh key which my_client_host will use for connection to my_server_host
-my_user - user, which my_client_host will use for connection to my_server_host
+GNU/Linux
 
-#### on the my_client_host todo:
+Openssh
 
-login as desired user
+systemd (optional, but recommended)
 
-set variables in file "my_variables"
-~~~~
-editor my_variables
-~~~~
-~~~~
-my_server_host=server.example.com
-my_client_host=client.example.com
-my_user=user
-my_ssh_key=".ssh/id_rsa.pub"
-my_ssh_privat_key=".ssh/id_rsa"
-~~~~
-generate ssh_keys (by default id_rsa and id_rsa.pub)
-~~~~
-ssh-keygen -f ${my_ssh_privat_key}
-~~~~
-get code and replace default values in config by values from my_variables
-~~~~
-source my_variables
-scp my_variables ${my_user}@${my_server_host}:./
+### Configuration
 
+1. Clone git on client host
+~~~~
 git clone https://github.com/gelo22/autossh.py.git
-sed -i s#my_user#${my_user}#g autossh.py/autossh.py.conf
-sed -i s#my_destination_host#${my_server_host}#g autossh.py/autossh.py.conf
-sed -i s#my_ssh_private_key#${my_ssh_privat_key}#g autossh.py/autossh.py.conf
-scp ${my_ssh_key} ${my_server_host}:./autossh_client_key
+~~~~
+2. Run installer on client host
+~~~~
+cd autossh.py.git/
+./install.py --host=router-ssh.example.com --prefix=my_prefix --user=autossh_py --ssh_user=autossh_py
+~~~~
+where:
+
+--host is destination server
+ 
+--prefix is prefix, which will be used to make uniq names across autossh clients
+
+--user is user in client's system, which will be used for autossh client start
+
+--ssh_user is user, which will be used for ssh connection to destination host
+
+by default install path is /opt/autossh_py/, both users is autossh_py
+
+3. Run automatically generated commands on server host, which you will see in ./install.py script output
+~~~~
+Run next commands on destination server:
+...
+~~~~
+4. Run service
+~~~~
+systemctl start router-kiev_autossh_py.service
+~~~~
+
+### Run without systemd
+
+watch all commands via --noop option and run its manually:
+~~~~
+./install.py --host=router-ssh.example.com --prefix=my_prefix --noop
 ~~~~
 add job to crontab
 ~~~~
@@ -56,37 +63,11 @@ crontab -e
 ~~~~
 add line
 ~~~~
-@reboot cd ./autossh.py/ && ./autossh.py
+@reboot /opt/autossh_py/autossh.py --config=/opt/autossh_py/my_prefix_autossh.py.conf
 ~~~~
 save file and exit
 
-#### on the my_server_host todo:
-
-~~~~
-source my_variables
-git clone https://github.com/gelo22/autossh.py.git
-old_umask=$(umask)
-umask 0077
-mkdir -p ./ssh
-my_ssh_key_value=$(cat autossh_client_key)
-echo "command=\"cd autossh.py && ./connection_tester.py --hostname='${my_client_host}'\" ${my_ssh_key_value}" >> .ssh/authorized_keys 
-umask $old_umask
-~~~~
-reboot my_client_host to check if cron started
-~~~~
-ps aux | grep autossh
-~~~~
-by default - port 22 to 2001 will be forwarded
-
-### Ruquirements
-
-Python2 or Python3
-
-GNU/Linux
-
-Openssh
-
-### Options
+### Get command line options
 
 Config file and script have the same options, run script in help mode to get list of options:
 ~~~~
@@ -95,3 +76,7 @@ Config file and script have the same options, run script in help mode to get lis
 
 Options from command line will owerride values from config
 
+### Remove installed files
+~~~~
+systemctl disable router-kiev_autossh_py.service; rm -rf /opt/autossh_py/ /etc/systemd/system/*_autossh_py.service /tmp/autossh_py/ ; userdel -r autossh_py; rm -rf /home/autossh_py/
+~~~~
