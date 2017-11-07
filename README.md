@@ -27,7 +27,7 @@ git clone https://github.com/gelo22/autossh.py.git
 2. Run installer on client host
 ~~~~
 cd autossh.py.git/
-./install.py --host=router-ssh.example.com --prefix=my_prefix --user=autossh_py --ssh_user=autossh_py
+./install.py --host=router-ssh.example.com --prefix=my_prefix
 ~~~~
 where:
 
