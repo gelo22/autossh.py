@@ -26,7 +26,7 @@ git clone https://github.com/gelo22/autossh.py.git
 ~~~~
 2. Run installer on client host
 ~~~~
-cd autossh.py.git/
+cd autossh.py/
 ./install.py --host=router-ssh.example.com --prefix=my_prefix
 ~~~~
 where:
@@ -78,5 +78,5 @@ Options from command line will owerride values from config
 
 ### Remove installed files
 ~~~~
-systemctl disable router-kiev_autossh_py.service; rm -rf /opt/autossh_py/ /etc/systemd/system/*_autossh_py.service /tmp/autossh_py/ ; userdel -r autossh_py; rm -rf /home/autossh_py/
+for s in $(systemctl -a | grep autossh_py); do systemctl disable ${s}; rm -rf /opt/autossh_py/ /etc/systemd/system/*_autossh_py.service /tmp/autossh_py/ ; userdel -r autossh_py; rm -rf /home/autossh_py/
 ~~~~
