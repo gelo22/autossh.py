@@ -164,7 +164,7 @@ def print_final_instructions():
     print('useradd -m -d /home/{0} {0}'.format(conf['user']))
     print('git clone https://github.com/gelo22/autossh.py.git /home/{0}/autossh.py'.format(conf['user']))
     print('mkdir /home/{0}/.ssh'.format(conf['user']))
-    print('echo "command=\\"cd autossh.py && ./connection_tester.py --hostname=\'{0}\'\\" {1}" > /home/{2}/.ssh/authorized_keys'.format(hostname, pub_key, conf['user']))
+    print('echo "command=\\"cd autossh.py && ./connection_tester.py --hostname=\'{0}\'\\" {1}" >> /home/{2}/.ssh/authorized_keys'.format(hostname, pub_key, conf['user']))
     print('chown -R {0}:{0} /home/{0}/'.format(conf['user']))
     print('chmod 700 /home/{0}/.ssh/'.format(conf['user']))
     print('chmod 600 /home/{0}/.ssh/authorized_keys'.format(conf['user']))
