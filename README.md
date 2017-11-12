@@ -18,7 +18,7 @@ Openssh
 
 systemd (optional, but recommended)
 
-### Configuration
+### Reccomended way for installation and configuration
 
 1. Clone git on client host
 ~~~~
@@ -46,12 +46,12 @@ by default install path is /opt/autossh_py/, both users is autossh_py
 Run next commands on destination server:
 ...
 ~~~~
-4. Run service
+and folow further instructions after:
 ~~~~
-systemctl start my_prefix_autossh_py.service
+Follow further instructions:
 ~~~~
 
-### Run without systemd
+### Custom installation and configuration without systemd
 
 watch all commands via --noop option and run its manually:
 ~~~~
@@ -76,7 +76,10 @@ Config file and script have the same options, run script in help mode to get lis
 
 Options from command line will owerride values from config
 
-### Remove installed files
+### Remove installed files for  default install
 ~~~~
-for s in $(systemctl -a | grep autossh_py); do systemctl disable ${s}; rm -rf /opt/autossh_py/ /etc/systemd/system/*_autossh_py.service /tmp/autossh_py/ ; userdel -r autossh_py; rm -rf /home/autossh_py/
+for s in $(systemctl -a | grep autossh_py); do systemctl disable ${s}; done
+rm -rf /opt/autossh_py/ /etc/systemd/system/*_autossh_py.service /tmp/autossh_py/
+userdel -r autossh_py
+rm -rf /home/autossh_py/
 ~~~~
