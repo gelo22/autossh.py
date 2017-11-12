@@ -14,11 +14,11 @@ import pwd
 
 # parse args
 parser = argparse.ArgumentParser()
-parser.add_argument('--host', help='destination hostname for ssh connection')
+parser.add_argument('--host', default='notexist.zero', help='destination hostname for ssh connection')
 parser.add_argument('--user', default='autossh_py', help='system user, which used for run autossh')
 parser.add_argument('--user_home_dir', default='/home/autossh_py/', help='home dir of system user, which used for run autossh')
 parser.add_argument('--ssh_user', default='autossh_py', help='user, which used for ssh connection to destination host')
-parser.add_argument('--prefix', help='prefix as uniq name for files')
+parser.add_argument('--prefix', default='none', help='prefix as uniq name for files')
 parser.add_argument('--dst_dir', default='/opt/autossh_py/', help='dir where autossh must be installed')
 parser.add_argument('--src_dir', default='./', help='dir from autossm must be installed')
 parser.add_argument('--noop', action='store_const', const=True, help='run without operations - only print commands')
@@ -46,6 +46,9 @@ def parse_args():
     for key in vars(args):
         if vars(args)[key]:
             conf[key] = vars(args)[key]
+    # set default prefix to destination hostname if none
+    if conf['prefix'] == 'none':
+        conf['prefix'] = conf['host']
     # add separator after pefix
     if conf['prefix'][-1] != '_':
         conf['prefix'] = conf['prefix'] + '_'
@@ -168,7 +171,9 @@ def print_final_instructions():
     print('chown -R {0}:{0} /home/{0}/'.format(conf['user']))
     print('chmod 700 /home/{0}/.ssh/'.format(conf['user']))
     print('chmod 600 /home/{0}/.ssh/authorized_keys'.format(conf['user']))
-    print('\n\nStart service on client:\nsystemctl start {0}autossh_py.service\n'.format(conf['prefix']))
+    print('\n\nFollow further instructions:\n')
+    print('Edit port forwarding section("ssh_forwards") in config on client:\neditor {0}{1}autossh.py.conf\n'.format(conf['dst_dir'], conf['prefix']))
+    print('Start service on client:\nsystemctl start {0}autossh_py.service\n'.format(conf['prefix']))
 
 def uninstall():
     pass
