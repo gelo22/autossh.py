@@ -210,7 +210,7 @@ if __name__ == '__main__':
     # add dictionary for data exchange
     data = { 'reload_daemon': False }
     # set reload signal and function for reload process
-    signal.signal(1, set_reload_daemon)
+    signal.signal(15, set_reload_daemon)
     while True:
         try:
             if data['reload_daemon']:
