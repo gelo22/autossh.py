@@ -158,6 +158,10 @@ def set_reload_daemon(signum, frame):
     '''Set reload status to True'''
     data['reload_daemon'] = True
 
+def set_exit_daemon(signum, frame):
+    '''Set exit status to True'''
+    sys.exit(0)
+
 def is_ssh_port_open(host, port):
     '''Check if remote ssh port is open'''
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -210,7 +214,8 @@ if __name__ == '__main__':
     # add dictionary for data exchange
     data = { 'reload_daemon': False }
     # set reload signal and function for reload process
-    signal.signal(15, set_reload_daemon)
+    signal.signal(signal.SIGHUP, set_reload_daemon)
+    signal.signal(signal.SIGTERM, set_exit_daemon)
     while True:
         try:
             if data['reload_daemon']:
@@ -234,9 +239,10 @@ if __name__ == '__main__':
         # stop if Ctrl + C
         except KeyboardInterrupt:
             sys.exit(0)
+        except SystemExit:
+            sys.exit(0)
         # write all exceptions to log and keep going
         except:
             trace = traceback.format_exception(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
             do_log(str(trace), 'info')
             time.sleep(conf['connection_tester_interval'])
-         

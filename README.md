@@ -24,10 +24,15 @@ systemd (optional, but recommended)
 ~~~~
 git clone https://github.com/gelo22/autossh.py.git
 ~~~~
-2. Run installer on client host
+2. Install or create appropriate link for python
+~~~~
+sudo ln -sf /usr/bin/python3 /usr/bin/python
+~~~~
+3. Run installer on client host
 ~~~~
 cd autossh.py/
-./install.py --host=router-ssh.example.com --prefix=my_prefix
+./install.py --host=autossh.example.lan --prefix=example_prefix --noop
+sudo ./install.py --host=autossh.example.lan --prefix=example_prefix
 ~~~~
 where:
 
@@ -56,7 +61,7 @@ Follow further instructions:
 
 watch all commands via --noop option and run its manually:
 ~~~~
-./install.py --host=router-ssh.example.com --prefix=my_prefix --noop
+./install.py --host=autossh.example.lan --prefix=example_prefix --noop
 ~~~~
 add job to crontab
 ~~~~
@@ -79,8 +84,8 @@ Options from command line will owerride values from config
 
 ### Remove installed files for  default install
 ~~~~
-for s in $(systemctl -a | grep autossh_py); do systemctl disable ${s}; done
-rm -rf /opt/autossh_py/ /etc/systemd/system/*_autossh_py.service /tmp/autossh_py/
-userdel -r autossh_py
-rm -rf /home/autossh_py/
+for s in $(sudo systemctl -a | grep autossh_py | awk '{print $1}'); do sudo systemctl disable ${s}; done
+sudo rm -rf /opt/autossh_py/ /etc/systemd/system/*_autossh_py.service /tmp/autossh_py/
+sudo userdel -r autossh_py
+sudo rm -rf /home/autossh_py/
 ~~~~

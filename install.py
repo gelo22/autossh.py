@@ -155,7 +155,9 @@ def print_final_instructions():
     pub_key_file_name = '{0}.ssh/autossh_py_rsa.pub'.format(conf['user_home_dir'])
     if conf.get('noop'):
         pub_key = 'noop_pub_key'
-        hostname = 'noop_hostname'
+        #hostname = 'noop_hostname'
+        with open('/proc/sys/kernel/hostname') as hostname_file:
+            hostname = hostname_file.read().rstrip()
     else:
         with open(pub_key_file_name) as pub_key_file:
             pub_key = pub_key_file.read().rstrip()
@@ -172,8 +174,8 @@ def print_final_instructions():
     print('chmod 700 /home/{0}/.ssh/'.format(conf['user']))
     print('chmod 600 /home/{0}/.ssh/authorized_keys'.format(conf['user']))
     print('\n\nFollow further instructions:\n')
-    print('Edit port forwarding section("ssh_forwards") in config on client:\neditor {0}{1}autossh.py.conf\n'.format(conf['dst_dir'], conf['prefix']))
-    print('Start service on client:\nsystemctl start {0}autossh_py.service\n'.format(conf['prefix']))
+    print('Edit port forwarding section("ssh_forwards") in config on client:\nsudo -e {0}{1}autossh.py.conf\n'.format(conf['dst_dir'], conf['prefix']))
+    print('Start service on client:\nsudo systemctl restart {0}autossh_py.service\n'.format(conf['prefix']))
 
 def uninstall():
     pass
